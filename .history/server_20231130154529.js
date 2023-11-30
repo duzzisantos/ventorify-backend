@@ -39,7 +39,7 @@ const corsOptions = {
 //Dependency utilization
 app.use(
   session({
-    secret: "blablablabla",
+    secret: "floridaG22#",
     resave: false,
     saveUninitialized: false,
     cookie: { secure: true },
