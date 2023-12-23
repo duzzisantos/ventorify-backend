@@ -10,7 +10,7 @@ const RateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const methodOverride = require("method-override");
-const db = require("./models");
+const db = require("../models");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const xss = require("xss-clean");
@@ -158,38 +158,38 @@ app.get("/api/display-cookie", (req, res) => {
 });
 
 //ROUTE FOR THE WAREHOUSE API ENDPOINT
-require("./routes/warehouse.routes")(app);
-require("./routes/team.routes")(app);
+require("../routes/warehouse.routes")(app);
+require("../routes/team.routes")(app);
 
 //ROUTE FOR MESSAGING API ENDPOINT
-require("./routes/messages.routes")(app);
+require("../routes/messages.routes")(app);
 
 //ROUTE FOR PROFILES
 // require("./routes/profile.routes")(app);
 
 //ROUTE FOR SALES
-require("./routes/sales.routes")(app);
+require("../routes/sales.routes")(app);
 
 //ROUTE FOR BACKING UP ORIGINAL WAREHOUSE DATA PER EVERY CHANGE IN THE DATASET
-require("./routes/backupWarehouse.routes")(app);
+require("../routes/backupWarehouse.routes")(app);
 
 //ROUTE FOR SHELVING
-require("./routes/shelf.routes")(app);
+require("../routes/shelf.routes")(app);
 
 //ROUTE FOR REORDER LOGIC
-require("./routes/purchase-request.routes")(app);
+require("../routes/purchase-request.routes")(app);
 
 //ROUTE FOR GETTING AGGREGATE GOODS
-require("./routes/aggregate-goods")(app);
+require("../routes/aggregate-goods")(app);
 
 //ROUTE FOR GETTING PRICES
-require("./routes/prices.routes")(app);
+require("../routes/prices.routes")(app);
 
-require("./routes/aggregate-shelf-route")(app);
+require("../routes/aggregate-shelf-route")(app);
 
-require("./routes/generateOrders.routes")(app);
+require("../routes/generateOrders.routes")(app);
 
-require("./routes/send-order-confirmation.routes")(app);
+require("../routes/send-order-confirmation.routes")(app);
 
 //Error handler
 app.use("/", (err, req, res, next) => {
