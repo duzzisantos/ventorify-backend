@@ -1,8 +1,12 @@
 require("dotenv").config();
+process.env.NODE_ENV = "production";
 const express = require("express");
-const cors = require("cors");
 const app = express();
+const cors = require("cors");
+const { jwtDecode } = require("jwt-decode");
+const MongoStore = require("connect-mongo");
 // const bodyParser = require("body-parser");
+const RateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const methodOverride = require("method-override");
@@ -11,6 +15,13 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const xss = require("xss-clean");
 
+//Environmental resources
+const isLocal = process.env.NODE_ENV === "production";
+const isProduction = process.env.NODE_ENV === "development";
+const localhost = process.env.REACT_APP_LOCAL;
+const webhost = process.env.REACT_APP_WEBHOST;
+
+//MongoDB connection parameters
 const connectionParameters = {
   useNewURLParser: true,
   useUnifiedTopology: true,
@@ -18,6 +29,7 @@ const connectionParameters = {
   sslValidate: true,
 };
 
+//MongoDB connection
 db.mongoose
   .connect(db.url, connectionParameters)
   .then(() => {
@@ -28,21 +40,32 @@ db.mongoose
     process.exit();
   });
 
+//Policy set for exchange in communication between client and server
 const corsOptions = {
-  origin: `http://localhost:${process.env.REACT_APP_PORT}`,
+  origin: isLocal ? localhost : isProduction && webhost,
   methods: "GET, POST, PUT, DELETE",
   crendentials: true,
   preflightContinue: false,
   optionsSuccessStatus: 204,
 };
 
-//Dependency utilization
+//Rate limiter for slowing down excessive cals to the server
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 100,
+  max: 20,
+});
+
+//Dependency utilities
 app.use(
   session({
-    secret: "blablablabla",
+    secret: "nebraska",
     resave: false,
-    saveUninitialized: false,
-    cookie: { secure: true },
+    saveUninitialized: true,
+    cookie: { secure: true, maxAge: 60000 },
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      ttl: 14 * 24 * 60 * 60, //14 days
+    }),
   })
 );
 
@@ -175,8 +198,27 @@ app.use("/", (err, req, res, next) => {
   return next(err);
 });
 
+//Middleware to verify request header authorization
+app.use("/", (req, res, next) => {
+  const token =
+    req.headers.authorization && req.headers.authorization.split(" ")[1];
+
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized Access" });
+  }
+
+  const decodedToken = jwtDecode(token);
+
+  if (decodedToken.aud === process.env.AUTHORIZATION_AUDIENCE) {
+    req.decodedToken = decodedToken;
+    next();
+  } else {
+    res.status(401).json({ message: "Unauthorized Access" });
+  }
+});
+
 //Connection settings
 const PORT = process.env.PORT;
 app.listen(PORT, (err) => {
-  err ? console.log(err) : console.log("LISTENING TO PORT: ", PORT);
+  err ? console.log(err) : console.log("LISTENING TO PORT: ", PORT ?? webhost);
 });
