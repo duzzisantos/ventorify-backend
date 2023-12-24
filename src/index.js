@@ -31,7 +31,7 @@ const connectionParameters = {
 
 //MongoDB connection
 db.mongoose
-  .connect(db.url, connectionParameters)
+  .connect(process.env.MONGO_URI, connectionParameters)
   .then(() => {
     console.log("Database connected successfully");
   })
