@@ -6,7 +6,7 @@ const cors = require("cors");
 const { jwtDecode } = require("jwt-decode");
 const MongoStore = require("connect-mongo");
 // const bodyParser = require("body-parser");
-const RateLimit = require("express-rate-limit");
+// const RateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const methodOverride = require("method-override");
@@ -50,10 +50,10 @@ const corsOptions = {
 };
 
 //Rate limiter for slowing down excessive cals to the server
-const limiter = RateLimit({
-  windowMs: 1 * 60 * 100,
-  max: 20,
-});
+// const limiter = RateLimit({
+//   windowMs: 1 * 60 * 100,
+//   max: 20,
+// });
 
 //Dependency utilities
 app.use(
