@@ -25,7 +25,7 @@ exports.createPriceList = async (req, res) => {
 
 //Get all prices in a price list
 exports.getAllPrices = (req, res) => {
-  const id = req.query._id;
+  const id = req.query.id;
   var condition = id ? { $regex: new RegExp(id), $options: "gi" } : {};
 
   Price.find(condition)
@@ -39,7 +39,7 @@ exports.getAllPrices = (req, res) => {
 
 //Get one specific price based on price ID
 exports.getSinglePriceById = (req, res) => {
-  const id = req.params._id;
+  const id = req.params.id;
   Price.findById(id).then((data) => {
     !data
       ? res.status(404).json({ message: "Price was not found!" })
@@ -49,7 +49,7 @@ exports.getSinglePriceById = (req, res) => {
 
 //Update a single price instance by ID
 exports.updateSinglePrice = (req, res) => {
-  const id = req.params._id;
+  const id = req.params.id;
   Price.findByIdAndUpdate(id, { $set: req.body }, (err, data, next) => {
     if (err) {
       res.status(400);
@@ -62,7 +62,7 @@ exports.updateSinglePrice = (req, res) => {
 
 //Delete a single price by ID from the pricelist
 exports.deleteSinglePrice = (req, res) => {
-  const id = req.params._id;
+  const id = req.params.id;
   Price.findByIdAndRemove(id)
     .then(() => {
       res.status(200);
