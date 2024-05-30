@@ -6,7 +6,7 @@ const cors = require("cors");
 const { jwtDecode } = require("jwt-decode");
 const MongoStore = require("connect-mongo");
 // const bodyParser = require("body-parser");
-// const RateLimit = require("express-rate-limit");
+const RateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const methodOverride = require("method-override");
@@ -15,23 +15,18 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const xss = require("xss-clean");
 
-//Environmental resources
-const isLocal = process.env.NODE_ENV === "production";
-const isProduction = process.env.NODE_ENV === "development";
 const localhost = process.env.REACT_APP_LOCAL;
 const webhost = process.env.REACT_APP_WEBHOST;
 
 //MongoDB connection parameters
 const connectionParameters = {
-  useNewURLParser: true,
-  useUnifiedTopology: true,
   ssl: true,
   sslValidate: true,
 };
 
 //MongoDB connection
 db.mongoose
-  .connect(process.env.MONGO_URI, connectionParameters)
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("Database connected successfully");
   })
@@ -41,19 +36,19 @@ db.mongoose
   });
 
 //Policy set for exchange in communication between client and server
-const corsOptions = {
-  origin: isLocal ? localhost : isProduction && webhost,
+//expanded cor options
+var corsOptions = {
+  origin: process.env.NODE_ENV === "development" ? localhost : webhost,
   methods: "GET, POST, PUT, DELETE",
-  crendentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
+  allowedHeaders: ["Content-Type", "Authorization"], // Add required headers
+  credentials: true, // If you need to include cookies in CORS requests
 };
 
-//Rate limiter for slowing down excessive cals to the server
-// const limiter = RateLimit({
-//   windowMs: 1 * 60 * 100,
-//   max: 20,
-// });
+// Rate limiter for slowing down excessive cals to the server
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 100,
+  max: 30,
+});
 
 //Dependency utilities
 app.use(
@@ -89,7 +84,7 @@ app.use(
     useDefaults: false,
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", `http://localhost:${process.env.REACT_APP_PORT}/`],
+      scriptSrc: ["'self'", `http://localhost:${localhost}/`],
       styleSrc: ["'self'"],
       imgSrc: ["'self'"],
       upgradeInsecureRequests: [],
@@ -218,7 +213,7 @@ app.use("/", (req, res, next) => {
 });
 
 //Connection settings
-const PORT = process.env.PORT;
-app.listen(PORT, (err) => {
-  err ? console.log(err) : console.log("LISTENING TO PORT: ", PORT ?? webhost);
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, "0.0.0.0", (err) => {
+  err ? console.log(err) : console.log("LISTENING TO PORT: ", PORT);
 });
