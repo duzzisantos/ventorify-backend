@@ -30,10 +30,13 @@ exports.aggregateProducts = async (req, res) => {
         new Set(filteredProducts.map((item) => item.economicOQ))
       ).join("");
 
-      const economicOrderQuantity = Number(eoq); //since they are constant - we return the average of all entries to avoid duplication
+      const economicOrderQuantity = parseInt(eoq, 10); //since they are constant - we return the average of all entries to avoid duplication
 
-      const unitPrice = Number(
-        Array.from(new Set(filteredProducts.map((item) => item.price))).join("")
+      const unitPrice = parseInt(
+        Array.from(new Set(filteredProducts.map((item) => item.price))).join(
+          ""
+        ),
+        10
       );
 
       return {
